@@ -73,5 +73,54 @@ module EmpanadaRecord
     def self.respond_to?(attribute)
       attributes.include? attribute
     end
+    # CRUD methods
+    # rails/activerecord/lib/active_record/attribute_methods/read.rb
+    # rails/activerecord/lib/active_record/dynamic_matchers.rb
+    # http://apidock.com/ruby/Module/define_method
+    # http://apidock.com/rails/ActiveRecord/Base/assign_attributes
+
+    def initialize(options={})
+      attributes.each do |key|
+        instance_variable_set("@#{key.to_s}", options[key])
+        #TODO define accesors
+        #send("#{k}=", v) if respond_to?("#{k}=")
+      end
+    end
+
+    def self.create(attributes)
+      object = new(attributes)
+      object.save
+      object
+    end
+
+    def save
+      raise "TODO"
+      attributes_values = arel_attributes_with_values_for_create(attribute_names)
+
+      new_id = self.class.unscoped.insert attributes_values
+      self.id ||= new_id if self.class.primary_key
+
+      @new_record = false
+      id
+    end
+
+    #rails/activerecord/lib/active_record/persistence.rb
+    def update
+      raise "TODO"
+      attributes_values = arel_attributes_with_values_for_update(attribute_names)
+      if attributes_values.empty?
+        0
+      else
+        self.class.unscoped._update_record attributes_values, id, id_was
+      end
+    end
+
+    def update_attributes(attrs_hash)
+      raise "TODO"
+    end
+
+    def destroy
+      raise "TODO"
+    end
   end
 end
